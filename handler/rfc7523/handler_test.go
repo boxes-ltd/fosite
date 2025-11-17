@@ -21,7 +21,7 @@ import (
 	"github.com/go-jose/go-jose/v3"
 	"github.com/go-jose/go-jose/v3/jwt"
 	"github.com/stretchr/testify/suite"
-	gomock "go.uber.org/mock/gomock"
+	"go.uber.org/mock/gomock"
 
 	"github.com/ory/fosite"
 	"github.com/ory/fosite/internal"
@@ -44,7 +44,7 @@ type AuthorizeJWTGrantRequestHandlerTestSuite struct {
 
 // Setup before each test in the suite.
 func (s *AuthorizeJWTGrantRequestHandlerTestSuite) SetupSuite() {
-	privateKey, err := rsa.GenerateKey(rand.Reader, 512) // fast RSA for testing
+	privateKey, err := rsa.GenerateKey(rand.Reader, 1024) // fast RSA for testing
 	if err != nil {
 		s.FailNowf("failed to setup test suite", "failed to generate RSA private key: %s", err.Error())
 	}
