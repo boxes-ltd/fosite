@@ -13,8 +13,9 @@ import (
 
 	"golang.org/x/text/language"
 
-	"github.com/ory/fosite/i18n"
 	"github.com/ory/x/errorsx"
+
+	"github.com/ory/fosite/i18n"
 
 	"github.com/pkg/errors"
 )
@@ -277,6 +278,7 @@ type (
 		DebugField       string
 		cause            error
 		useLegacyFormat  bool
+		exposeHint       bool
 		exposeDebug      bool
 
 		// Fields for globalization
@@ -463,6 +465,13 @@ func (e *RFC6749Error) Sanitize() *RFC6749Error {
 	return &err
 }
 
+// WithExposeHint if set to true includes the hint in the error description
+func (e *RFC6749Error) WithExposeHint(exposeHint bool) *RFC6749Error {
+	err := *e
+	err.exposeHint = exposeHint
+	return &err
+}
+
 // WithExposeDebug if set to true exposes debug messages
 func (e *RFC6749Error) WithExposeDebug(exposeDebug bool) *RFC6749Error {
 	err := *e
@@ -473,9 +482,11 @@ func (e *RFC6749Error) WithExposeDebug(exposeDebug bool) *RFC6749Error {
 // GetDescription returns a more description description, combined with hint and debug (when available).
 func (e *RFC6749Error) GetDescription() string {
 	description := i18n.GetMessageOrDefault(e.catalog, e.ErrorField, e.lang, e.DescriptionField)
-	e.computeHintField()
-	if e.HintField != "" {
-		description += " " + e.HintField
+	if e.exposeHint {
+		e.computeHintField()
+		if e.HintField != "" {
+			description += " " + e.HintField
+		}
 	}
 	if e.DebugField != "" && e.exposeDebug {
 		description += " " + e.DebugField
@@ -514,10 +525,17 @@ func (e *RFC6749Error) UnmarshalJSON(b []byte) error {
 
 func (e RFC6749Error) MarshalJSON() ([]byte, error) {
 	if !e.useLegacyFormat {
-		return json.Marshal(&RFC6749ErrorJson{
-			Name:        e.ErrorField,
-			Description: e.GetDescription(),
-		})
+		return json.Marshal(
+			&RFC6749ErrorJson{
+				Name:        e.ErrorField,
+				Description: e.GetDescription(),
+			},
+		)
+	}
+
+	var hint string
+	if e.exposeHint {
+		hint = e.HintField
 	}
 
 	var debug string
@@ -525,13 +543,15 @@ func (e RFC6749Error) MarshalJSON() ([]byte, error) {
 		debug = e.DebugField
 	}
 
-	return json.Marshal(&RFC6749ErrorJson{
-		Name:        e.ErrorField,
-		Description: e.DescriptionField,
-		Hint:        e.HintField,
-		Code:        e.CodeField,
-		Debug:       debug,
-	})
+	return json.Marshal(
+		&RFC6749ErrorJson{
+			Name:        e.ErrorField,
+			Description: e.DescriptionField,
+			Hint:        hint,
+			Code:        e.CodeField,
+			Debug:       debug,
+		},
+	)
 }
 
 func (e *RFC6749Error) ToValues() url.Values {
