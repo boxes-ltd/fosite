@@ -134,6 +134,7 @@ type Configurator interface {
 	HMACHashingProvider
 	ClientAuthenticationStrategyProvider
 	ResponseModeHandlerExtensionProvider
+	SendHintsToClientsProvider
 	SendDebugMessagesToClientsProvider
 	JWKSFetcherStrategyProvider
 	ClientAuthenticationStrategyProvider

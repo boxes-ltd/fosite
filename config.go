@@ -221,6 +221,12 @@ type GetSecretsHashingProvider interface {
 	GetSecretsHasher(ctx context.Context) Hasher
 }
 
+// SendHintsToClientsProvider returns the provider for configuring whether hints are included in error responses.
+type SendHintsToClientsProvider interface {
+	// GetSendHintsToClients returns whether hints should be included in error responses.
+	GetSendHintsToClients(ctx context.Context) bool
+}
+
 // SendDebugMessagesToClientsProvider returns the provider for configuring the send debug messages to clients.
 type SendDebugMessagesToClientsProvider interface {
 	// GetSendDebugMessagesToClients returns the send debug messages to clients.

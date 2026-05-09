@@ -12,8 +12,9 @@ import (
 
 	"github.com/hashicorp/go-retryablehttp"
 
-	"github.com/ory/fosite/token/jwt"
 	"github.com/ory/x/randx"
+
+	"github.com/ory/fosite/token/jwt"
 
 	"github.com/ory/fosite/i18n"
 )
@@ -51,6 +52,7 @@ var (
 	_ IDTokenIssuerProvider                        = (*Config)(nil)
 	_ JWKSFetcherStrategyProvider                  = (*Config)(nil)
 	_ ClientAuthenticationStrategyProvider         = (*Config)(nil)
+	_ SendHintsToClientsProvider                   = (*Config)(nil)
 	_ SendDebugMessagesToClientsProvider           = (*Config)(nil)
 	_ ResponseModeHandlerExtensionProvider         = (*Config)(nil)
 	_ MessageCatalogProvider                       = (*Config)(nil)
@@ -101,6 +103,9 @@ type Config struct {
 
 	// DisableRefreshTokenValidation sets the introspection endpoint to disable refresh token validation.
 	DisableRefreshTokenValidation bool
+
+	// SendHintsToClients if set to true, includes hints in error response descriptions. Defaults to false.
+	SendHintsToClients bool
 
 	// SendDebugMessagesToClients if set to true, includes error debug messages in response payloads. Be aware that sensitive
 	// data may be exposed, depending on your implementation of Fosite. Such sensitive data might include database error
@@ -303,6 +308,10 @@ func (c *Config) GetMessageCatalog(ctx context.Context) i18n.MessageCatalog {
 
 func (c *Config) GetResponseModeHandlerExtension(ctx context.Context) ResponseModeHandler {
 	return c.ResponseModeHandlerExtension
+}
+
+func (c *Config) GetSendHintsToClients(_ context.Context) bool {
+	return c.SendHintsToClients
 }
 
 func (c *Config) GetSendDebugMessagesToClients(ctx context.Context) bool {

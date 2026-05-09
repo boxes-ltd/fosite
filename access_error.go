@@ -20,7 +20,10 @@ func (f *Fosite) writeJsonError(ctx context.Context, rw http.ResponseWriter, req
 	rw.Header().Set("Cache-Control", "no-store")
 	rw.Header().Set("Pragma", "no-cache")
 
-	rfcerr := ErrorToRFC6749Error(err).WithLegacyFormat(f.Config.GetUseLegacyErrorFormat(ctx)).WithExposeDebug(f.Config.GetSendDebugMessagesToClients(ctx))
+	rfcerr := ErrorToRFC6749Error(err).
+		WithLegacyFormat(f.Config.GetUseLegacyErrorFormat(ctx)).
+		WithExposeHint(f.Config.GetSendHintsToClients(ctx)).
+		WithExposeDebug(f.Config.GetSendDebugMessagesToClients(ctx))
 
 	if requester != nil {
 		rfcerr = rfcerr.WithLocalizer(f.Config.GetMessageCatalog(ctx), getLangFromRequester(requester))
@@ -30,7 +33,11 @@ func (f *Fosite) writeJsonError(ctx context.Context, rw http.ResponseWriter, req
 	if err != nil {
 		if f.Config.GetSendDebugMessagesToClients(ctx) {
 			errorMessage := EscapeJSONString(err.Error())
-			http.Error(rw, fmt.Sprintf(`{"error":"server_error","error_description":"%s"}`, errorMessage), http.StatusInternalServerError)
+			http.Error(
+				rw,
+				fmt.Sprintf(`{"error":"server_error","error_description":"%s"}`, errorMessage),
+				http.StatusInternalServerError,
+			)
 		} else {
 			http.Error(rw, `{"error":"server_error"}`, http.StatusInternalServerError)
 		}
