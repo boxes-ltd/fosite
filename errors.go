@@ -561,7 +561,7 @@ func (e *RFC6749Error) ToValues() url.Values {
 
 	if e.useLegacyFormat {
 		values.Set("error_description", e.DescriptionField)
-		if e.HintField != "" {
+		if e.HintField != "" && e.exposeHint {
 			values.Set("error_hint", e.HintField)
 		}
 
