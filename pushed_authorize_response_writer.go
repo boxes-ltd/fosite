@@ -75,8 +75,11 @@ func (f *Fosite) WritePushedAuthorizeError(ctx context.Context, rw http.Response
 	rw.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
 	sendDebugMessagesToClient := f.Config.GetSendDebugMessagesToClients(ctx)
-	rfcerr := ErrorToRFC6749Error(err).WithLegacyFormat(f.Config.GetUseLegacyErrorFormat(ctx)).
-		WithExposeDebug(sendDebugMessagesToClient).WithLocalizer(f.Config.GetMessageCatalog(ctx), getLangFromRequester(ar))
+	rfcerr := ErrorToRFC6749Error(err).
+		WithLegacyFormat(f.Config.GetUseLegacyErrorFormat(ctx)).
+		WithExposeHint(f.Config.GetSendHintsToClients(ctx)).
+		WithExposeDebug(sendDebugMessagesToClient).
+		WithLocalizer(f.Config.GetMessageCatalog(ctx), getLangFromRequester(ar))
 
 	js, err := json.Marshal(rfcerr)
 	if err != nil {

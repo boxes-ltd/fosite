@@ -104,8 +104,8 @@ type Config struct {
 	// DisableRefreshTokenValidation sets the introspection endpoint to disable refresh token validation.
 	DisableRefreshTokenValidation bool
 
-	// SendHintsToClients if set to true, includes hints in error response descriptions. Defaults to false.
-	SendHintsToClients bool
+	// DisableHintsToClients if set to true, omits hints from error response descriptions. Defaults to false (hints enabled).
+	DisableHintsToClients bool
 
 	// SendDebugMessagesToClients if set to true, includes error debug messages in response payloads. Be aware that sensitive
 	// data may be exposed, depending on your implementation of Fosite. Such sensitive data might include database error
@@ -311,7 +311,7 @@ func (c *Config) GetResponseModeHandlerExtension(ctx context.Context) ResponseMo
 }
 
 func (c *Config) GetSendHintsToClients(_ context.Context) bool {
-	return c.SendHintsToClients
+	return !c.DisableHintsToClients
 }
 
 func (c *Config) GetSendDebugMessagesToClients(ctx context.Context) bool {

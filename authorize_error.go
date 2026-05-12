@@ -19,7 +19,11 @@ func (f *Fosite) WriteAuthorizeError(ctx context.Context, rw http.ResponseWriter
 		return
 	}
 
-	rfcerr := ErrorToRFC6749Error(err).WithLegacyFormat(f.Config.GetUseLegacyErrorFormat(ctx)).WithExposeDebug(f.Config.GetSendDebugMessagesToClients(ctx)).WithLocalizer(f.Config.GetMessageCatalog(ctx), getLangFromRequester(ar))
+	rfcerr := ErrorToRFC6749Error(err).
+		WithLegacyFormat(f.Config.GetUseLegacyErrorFormat(ctx)).
+		WithExposeHint(f.Config.GetSendHintsToClients(ctx)).
+		WithExposeDebug(f.Config.GetSendDebugMessagesToClients(ctx)).
+		WithLocalizer(f.Config.GetMessageCatalog(ctx), getLangFromRequester(ar))
 	if !ar.IsRedirectURIValid() {
 		rw.Header().Set("Content-Type", "application/json;charset=UTF-8")
 
