@@ -278,7 +278,7 @@ type (
 		DebugField       string
 		cause            error
 		useLegacyFormat  bool
-		exposeHint       bool
+		hideHint         bool
 		exposeDebug      bool
 
 		// Fields for globalization
@@ -465,10 +465,10 @@ func (e *RFC6749Error) Sanitize() *RFC6749Error {
 	return &err
 }
 
-// WithExposeHint if set to true includes the hint in the error description
+// WithExposeHint if set to true includes the hint in the error description.
 func (e *RFC6749Error) WithExposeHint(exposeHint bool) *RFC6749Error {
 	err := *e
-	err.exposeHint = exposeHint
+	err.hideHint = !exposeHint
 	return &err
 }
 
@@ -482,7 +482,7 @@ func (e *RFC6749Error) WithExposeDebug(exposeDebug bool) *RFC6749Error {
 // GetDescription returns a more description description, combined with hint and debug (when available).
 func (e *RFC6749Error) GetDescription() string {
 	description := i18n.GetMessageOrDefault(e.catalog, e.ErrorField, e.lang, e.DescriptionField)
-	if e.exposeHint {
+	if !e.hideHint {
 		e.computeHintField()
 		if e.HintField != "" {
 			description += " " + e.HintField
@@ -534,7 +534,7 @@ func (e RFC6749Error) MarshalJSON() ([]byte, error) {
 	}
 
 	var hint string
-	if e.exposeHint {
+	if !e.hideHint {
 		hint = e.HintField
 	}
 
@@ -561,7 +561,7 @@ func (e *RFC6749Error) ToValues() url.Values {
 
 	if e.useLegacyFormat {
 		values.Set("error_description", e.DescriptionField)
-		if e.HintField != "" && e.exposeHint {
+		if e.HintField != "" && !e.hideHint {
 			values.Set("error_hint", e.HintField)
 		}
 
