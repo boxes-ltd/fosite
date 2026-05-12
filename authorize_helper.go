@@ -14,7 +14,7 @@ import (
 
 	"github.com/ory/x/errorsx"
 
-	"github.com/asaskevich/govalidator"
+	"github.com/asaskevich/govalidator/v12"
 )
 
 var DefaultFormPostTemplate = template.Must(template.New("form_post").Parse(`<html>
